@@ -2,97 +2,84 @@ import {Component} from 'react'
 
 import './index.css'
 
-const initialState = {
-  seconds: 0,
-  isWatchRunning: false,
-}
-
 class StopWatch extends Component {
-  state = initialState
-
-  componentWillUnmount() {
-    clearInterval(this.intervalId)
+  state = {
+    isTimerRunning: false,
+    timeElapsedInSeconds: 0,
   }
 
-  getTimer = () => {
-    const {seconds} = this.state
-    const elapsedMinutes = Math.floor(seconds / 60)
-    const elapsedSeconds = Math.floor(seconds % 60)
-    const minutesText =
-      elapsedMinutes > 9 ? elapsedMinutes : `0${elapsedMinutes}`
-    const secondsText =
-      elapsedSeconds > 9 ? elapsedSeconds : `0${elapsedSeconds}`
+  componentWillUnmount() {
+    clearInterval(this.timeInterval)
+  }
+
+  getDisplayTimer = () => {
+    const {timeElapsedInSeconds} = this.state
+    const minutes = Math.floor(timeElapsedInSeconds / 60)
+    const seconds = Math.floor(timeElapsedInSeconds % 60)
+    const minutesText = minutes > 9 ? minutes : `0${minutes}`
+    const secondsText = seconds > 9 ? seconds : `0${seconds}`
 
     return `${minutesText}:${secondsText}`
   }
 
-  onStart = () => {
-    const {isWatchRunning} = this.state
-    if (!isWatchRunning) {
-      this.intervalId = setInterval(this.increaseTimer, 1000)
-      this.setState({
-        isWatchRunning: true,
-      })
-    }
+  onStartTimer = () => {
+    this.timeInterval = setInterval(this.updateTime, 1000)
+    this.setState({isTimerRunning: true})
   }
 
-  increaseTimer = () => {
-    const {isWatchRunning} = this.state
-    if (isWatchRunning) {
-      this.setState(prevState => ({
-        seconds: prevState.seconds + 1,
-      }))
-    }
+  updateTime = () => {
+    this.setState(prevState => ({
+      timeElapsedInSeconds: prevState.timeElapsedInSeconds + 1,
+    }))
   }
 
-  onStop = () => {
-    clearInterval(this.intervalId)
-    this.setState({
-      isWatchRunning: false,
-    })
+  onStopTimer = () => {
+    clearInterval(this.timeInterval)
+    this.setState({isTimerRunning: false})
   }
 
-  onReset = () => {
-    this.setState(initialState)
-    clearInterval(this.intervalId)
+  onResetTimer = () => {
+    clearInterval(this.timeInterval)
+    this.setState({isTimerRunning: false, timeElapsedInSeconds: 0})
   }
 
   render() {
-    const {isWatchRunning} = this.state
+    const {isTimerRunning} = this.state
+
     return (
       <div className="app-container">
-        <div className="stop-watch-container">
-          <h1>Stopwatch</h1>
-          <div className="stop-watch-box">
-            <div className="timer-img-container">
+        <div className="stopwatch-container">
+          <h1 className="stopwatch">Stopwatch</h1>
+          <div className="timer-container">
+            <div className="timer">
               <img
                 src="https://assets.ccbp.in/frontend/react-js/stopwatch-timer.png"
                 alt="stopwatch"
-                className="stopwatch-icon"
+                className="timer-image"
               />
-              <p>Timer</p>
+              <p className="heading">Timer</p>
             </div>
-            <h1>{this.getTimer()}</h1>
-            <div className="buttons-container">
+            <h1 className="stopwatch-timer">{this.getDisplayTimer()}</h1>
+            <div className="timer-buttons">
               <button
                 type="button"
-                className="btn bg-green"
-                onClick={this.onStart}
-                disabled={isWatchRunning}
+                className="start-button button"
+                onClick={this.onStartTimer}
+                disabled={isTimerRunning}
               >
                 Start
               </button>
               <button
                 type="button"
-                className="btn bg-red"
-                onClick={this.onStop}
+                className="stop-button button"
+                onClick={this.onStopTimer}
               >
                 Stop
               </button>
               <button
                 type="button"
-                className="btn bg-yellow"
-                onClick={this.onReset}
+                className="reset-button button"
+                onClick={this.onResetTimer}
               >
                 Reset
               </button>
